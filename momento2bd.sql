@@ -260,3 +260,32 @@ SELECT
     COUNT(*) AS TotalUsuarios
 FROM Usuario
 GROUP BY rol;
+
+GO
+
+CREATE PROCEDURE usp_mostrarTablas
+AS
+BEGIN
+    SET NOCOUNT ON; 
+SELECT *
+FROM Prestamo
+END;
+
+GO
+
+EXEC usp_mostrarTablas
+
+GO
+
+CREATE OR ALTER PROCEDURE usp_mostrarTablas
+AS
+BEGIN
+    SET NOCOUNT ON; 
+    SELECT * FROM Prestamo;
+END;
+
+GO
+
+EXEC usp_mostrarTablas;
+
+
