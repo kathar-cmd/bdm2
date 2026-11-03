@@ -288,4 +288,27 @@ GO
 
 EXEC usp_mostrarTablas;
 
+-- Historial detallado de préstamos por usuario
+-- Pregunta de negocio: ¿Cuál es el historial de los libros que ha solicitado en préstamo un usuario específico, ordenado desde el más reciente?
 
+GO
+CREATE PROCEDURE usp_HistorialPrestamosUsuario
+    @idUsuario VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        P.idPrestamo,
+        L.nombre AS TituloLibro,
+        P.fechaPrestamo,
+        P.fechaEntrega,
+        P.cantidadLibros
+    FROM Prestamo P
+    INNER JOIN Libros L ON P.idLibro = L.idLibro
+    WHERE P.idUsuario = @idUsuario
+    ORDER BY P.fechaPrestamo DESC;
+END;
+GO
+
+EXEC usp_HistorialPrestamosUsuario @idUsuario = 'U001';
