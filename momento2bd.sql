@@ -288,27 +288,62 @@ GO
 
 EXEC usp_mostrarTablas;
 
--- Historial detallado de préstamos por usuario
--- Pregunta de negocio: ¿Cuál es el historial de los libros que ha solicitado en préstamo un usuario específico, ordenado desde el más reciente?
+--Procedimiento almacenado para consultar libros con stock bajo
+--Pregunta de negocio: ¿Qué libros tienen una cantidad de ejemplares igual o inferior al stock mínimo establecido y cuáles se encuentran agotados?
 
 GO
-CREATE PROCEDURE usp_HistorialPrestamosUsuario
-    @idUsuario VARCHAR(50)
+
+CREATE OR ALTER PROCEDURE usp_LibrosStockBajo
+    @stockMinimo INT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT 
-        P.idPrestamo,
-        L.nombre AS TituloLibro,
-        P.fechaPrestamo,
-        P.fechaEntrega,
-        P.cantidadLibros
-    FROM Prestamo P
-    INNER JOIN Libros L ON P.idLibro = L.idLibro
-    WHERE P.idUsuario = @idUsuario
-    ORDER BY P.fechaPrestamo DESC;
+
+    --¿Qué pasa si el usuario ingresa un stock mínimo negativo?
+    --Se valida que el valor ingresado sea correcto.
+    IF @stockMinimo < 0
+    BEGIN
+        PRINT 'Error: El stock minimo no puede ser negativo.';
+        RETURN;
+    END;
+
+    --¿Existen libros que tengan una cantidad de ejemplares menor o igual al límite establecido?
+    --Se comprueba si hay libros que cumplan esta condición.
+    IF NOT EXISTS (
+        SELECT 1
+        FROM Libros
+        WHERE ejemplares <= @stockMinimo
+    )
+    BEGIN
+        PRINT 'No se encontraron libros con stock bajo.';
+        RETURN;
+    END;
+
+    --¿Qué información necesitamos mostrar de los libros que tienen pocas existencias?
+    --Se consultan los datos del libro y se identifica su estado según la cantidad disponible.
+    SELECT
+        idLibro,
+        nombre,
+        genero,
+        seccion,
+        ejemplares AS StockActual,
+
+        CASE
+            WHEN ejemplares = 0 THEN 'Agotado'
+            ELSE 'Stock Bajo'
+        END AS EstadoStock
+
+    FROM Libros
+    WHERE ejemplares <= @stockMinimo
+    ORDER BY ejemplares ASC;
+
 END;
+
 GO
 
-EXEC usp_HistorialPrestamosUsuario @idUsuario = 'U001';
+--¿Cómo podemos consultar los libros que tienen 4 ejemplares o menos?
+EXEC usp_LibrosStockBajo @stockMinimo = 4;
+
+GO
+
+
