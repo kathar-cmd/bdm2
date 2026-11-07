@@ -263,20 +263,6 @@ GROUP BY rol;
 
 GO
 
-CREATE PROCEDURE usp_mostrarTablas
-AS
-BEGIN
-    SET NOCOUNT ON; 
-SELECT *
-FROM Prestamo
-END;
-
-GO
-
-EXEC usp_mostrarTablas
-
-GO
-
 CREATE OR ALTER PROCEDURE usp_mostrarTablas
 AS
 BEGIN
@@ -288,4 +274,68 @@ GO
 
 EXEC usp_mostrarTablas;
 
+GO
+CREATE PROCEDURE usp_LibrosPorGenero
+    @genero VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        idLibro,
+        nombre,
+        genero,
+        seccion,
+        ejemplares
+    FROM Libros
+    WHERE genero = @genero;
+END;
+GO
+
+EXEC usp_LibrosPorGenero @genero = 'Novela';
+
+
+GO
+CREATE PROCEDURE usp_HistorialPrestamosUsuario
+    @idUsuario VARCHAR(50)
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    SELECT 
+        P.idPrestamo,
+        L.nombre AS TituloLibro,
+        P.fechaPrestamo,
+        P.fechaEntrega,
+        P.cantidadLibros
+    FROM Prestamo P
+    INNER JOIN Libros L ON P.idLibro = L.idLibro
+    WHERE P.idUsuario = @idUsuario
+    ORDER BY P.fechaPrestamo DESC;
+END;
+GO
+
+EXEC usp_HistorialPrestamosUsuario @idUsuario = 'U001';
+
+GO
+
+CREATE PROCEDURE usp_LibrosStockBajo
+    @stockMinimo INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        idLibro,
+        nombre,
+        genero,
+        seccion,
+        ejemplares
+    FROM Libros
+    WHERE ejemplares <= @stockMinimo;
+END;
+GO
+
+EXEC usp_LibrosStockBajo 4;
+GO
 
