@@ -274,7 +274,6 @@ GO
 
 EXEC usp_mostrarTablas;
 
-<<<<<<< HEAD
 GO
 CREATE PROCEDURE usp_LibrosPorGenero
     @genero VARCHAR(50)
@@ -320,52 +319,18 @@ EXEC usp_HistorialPrestamosUsuario @idUsuario = 'U001';
 
 GO
 
-CREATE PROCEDURE usp_LibrosStockBajo
-=======
---Procedimiento almacenado para consultar libros con stock bajo
---Pregunta de negocio: ¿Qué libros tienen una cantidad de ejemplares igual o inferior al stock mínimo establecido y cuáles se encuentran agotados?
-
 GO
-
-CREATE OR ALTER PROCEDURE usp_LibrosStockBajo
->>>>>>> a27de1ad43ba72c5ffeb0574c8d29336a7d55bb2
+CREATE PROCEDURE usp_LibrosStockBajo
     @stockMinimo INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-<<<<<<< HEAD
     SELECT 
-=======
-    --¿Qué pasa si el usuario ingresa un stock mínimo negativo?
-    --Se valida que el valor ingresado sea correcto.
-    IF @stockMinimo < 0
-    BEGIN
-        PRINT 'Error: El stock minimo no puede ser negativo.';
-        RETURN;
-    END;
-
-    --¿Existen libros que tengan una cantidad de ejemplares menor o igual al límite establecido?
-    --Se comprueba si hay libros que cumplan esta condición.
-    IF NOT EXISTS (
-        SELECT 1
-        FROM Libros
-        WHERE ejemplares <= @stockMinimo
-    )
-    BEGIN
-        PRINT 'No se encontraron libros con stock bajo.';
-        RETURN;
-    END;
-
-    --¿Qué información necesitamos mostrar de los libros que tienen pocas existencias?
-    --Se consultan los datos del libro y se identifica su estado según la cantidad disponible.
-    SELECT
->>>>>>> a27de1ad43ba72c5ffeb0574c8d29336a7d55bb2
         idLibro,
         nombre,
         genero,
         seccion,
-<<<<<<< HEAD
         ejemplares
     FROM Libros
     WHERE ejemplares <= @stockMinimo;
@@ -374,26 +339,3 @@ GO
 
 EXEC usp_LibrosStockBajo 4;
 GO
-=======
-        ejemplares AS StockActual,
-
-        CASE
-            WHEN ejemplares = 0 THEN 'Agotado'
-            ELSE 'Stock Bajo'
-        END AS EstadoStock
-
-    FROM Libros
-    WHERE ejemplares <= @stockMinimo
-    ORDER BY ejemplares ASC;
-
-END;
-
-GO
-
---¿Cómo podemos consultar los libros que tienen 4 ejemplares o menos?
-EXEC usp_LibrosStockBajo @stockMinimo = 4;
-
-GO
-
->>>>>>> a27de1ad43ba72c5ffeb0574c8d29336a7d55bb2
-
